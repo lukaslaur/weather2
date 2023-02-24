@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gemunu+Libre:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+</head>
+<body>
+    <div class="card">
+    <div class="weather">
+        <h1 class="city">Orai Vilniuje</h1>
+        <div class="temp">0°C</div>
+        <div class="flex">
+            <div class="icon"></div>
+            <div class="description">Cloudy</div>
+        </div>
+        <div class="humidity">Humidity: 0%</div>
+        <div class="wind">Wind speed: 0km/h</div>
+    </div>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin:0;
+            background:#222;
+        }
+        .card{
+            background: #000000d0;
+            padding: 2em;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 400px;
+            margin: 1em;
+            font-family: 'Gemunu Libre', sans-serif;
+            color: white;
+            font-size: 20px;
+        }
+        .search{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button{
+            margin: 0.5em;
+            border-radius: 50%;
+            border:none;
+        }
+        .description{
+            text-transform: capitalize;
+        }
+        .flex{
+            display:flex;
+            align-items: center;
+        }
+    </style>
+    <script>
+        const api = "https://api.meteo.lt/v1/places/vilnius/forecasts/long-term";
+        let weather = {
+
+            fetchWeather:function(){
+                fetch(api)
+                .then(response => response.json())
+                .then(data => this.displayWeather(data));
+            },
+
+            displayWeather:function(data){
+                var today = new Date();
+                var month;
+                var day;
+                var hour;
+                if(today.getMonth()+1<10)
+                    month='0'+(today.getMonth()+1);
+                else
+                    month=today.getMonth()+1;
+                if((today.getDate())<10)
+                    day='0'+today.getDate();
+                else
+                    day=today.getDate();    
+
+                if(today.getHours()<10)
+                    hour='0'+today.getHours()+":00:00";
+                else
+                    hour=today.getHours()+":00:00";
+                var todaysDate = today.getFullYear()+'-'+month+'-'+day+' '+hour;
+                console.log(todaysDate);
+                console.log(data.forecastTimestamps[0]);
+                 for (index in data.forecastTimestamps) {
+                      if (data.forecastTimestamps[index].forecastTimeUtc==todaysDate){
+
+                        const{airTemperature}=data.forecastTimestamps[index];
+                        const{windSpeed}=data.forecastTimestamps[index];
+                        const{relativeHumidity}=data.forecastTimestamps[index];
+                        const{conditionCode}=data.forecastTimestamps[index];
+
+
+                        
+                        document.querySelector(".temp").innerText=airTemperature+"°C";
+                        document.querySelector(".description").innerText=conditionCode;
+                        document.querySelector(".humidity").innerText="Humidity: "+ relativeHumidity +"%";
+                        document.querySelector(".wind").innerText="Wind speed: " + windSpeed + "km/h";
+                        if (conditionCode=='clear')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">clear_day</span>';
+                        else if(conditionCode=='isolated-clouds')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">cloud</span>';
+                        else if(conditionCode=='scattered-clouds')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">clear_day</span>';
+                        else if(conditionCode=='overcast')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">partly_cloudy_day</span>';
+                        else if(conditionCode=='light-rain')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">water_drop</span>';
+                        else if(conditionCode=='moderate-rain')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">rainy</span>';
+                        else if(conditionCode=='heavy-rain')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">tsunami</span>';
+                        else if(conditionCode=='sleet')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">ac_unit</span><span class="material-symbols-outlined">water_drop</span>';
+                        else if(conditionCode=='light-snow')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">ac_unit</span>';
+                        else if(conditionCode=='moderate-snow')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">ac_unit</span>';
+                        else if(conditionCode=='heavy-snow')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">ac_unit</span>';
+                        else if(conditionCode=='fog')
+                            document.querySelector(".icon").innerHTML='<span class="material-symbols-outlined">visibility_off</span>';
+                        else
+                            document.querySelector(".icon").innerHTML='';
+
+                        localStorage.setItem("temp",airTemperature);
+                        localStorage.setItem("conditionCode",conditionCode);
+                        localStorage.setItem("humidity",relativeHumidity);
+                        localStorage.setItem("wind",windSpeed);
+                        localStorage.setItem("date",todaysDate);
+
+                        }
+                 }
+            }
+        }
+        weather.fetchWeather();
+</script>
+</body>
+</html>
